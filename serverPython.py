@@ -127,11 +127,6 @@ def start_server_tigger():
                             print(f"from device IMEI = {device_imei}")
                             print()
 
-                            # Aquí es donde se envía la data al servidor Node.js
-                            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-                                client_socket.connect(('0.tcp.sa.ngrok.io', 18674))
-                                client_socket.sendall(data)
-                                print(f"Data sent to Node.js server")
 
                             record_response = (record_number).to_bytes(4, byteorder="big")
                             conn.sendall(record_response)
@@ -351,6 +346,11 @@ def codec_8e_parser(codec_8E_packet, device_imei, props): #think a lot before mo
 		record_number += 1
 		
 		try: #writing dictionary to ./data/data.json
+			json_data = json.dumps(io_dict)
+			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+				client_socket.connect(('0.tcp.sa.ngrok.io', 18674))
+				client_socket.sendall(json_data.encode())
+				print(f"Data sent to Node.js server")
 			json_printer(io_dict, device_imei)
 		except Exception as e:
 			print(f"JSON writing error occured = {e}")
