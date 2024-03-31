@@ -6,7 +6,7 @@ import struct
 import decimal
 
 HOST = socket.gethostbyname(socket.gethostname())
-PORT = 443  #change this to your port
+PORT = 80  #change this to your port
 
 def input_trigger(): #triggers user input         
 		
