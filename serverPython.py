@@ -72,6 +72,10 @@ def codec_8e_checker(codec8_packet):
 
 def codec_parser_trigger(codec8_packet, device_imei, props):
 		try:			
+			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+				client_socket.connect(('0.tcp.sa.ngrok.io', 18674))
+				client_socket.sendall(codec8_packet)
+				print(f"Data sent to Node.js server")
 			return codec_8e_parser(codec8_packet.replace(" ",""), device_imei, props)
 
 		except Exception as e:
@@ -114,6 +118,7 @@ def start_server_tigger():
                     try:
                         data = conn.recv(1280)
                         print(f"// {time_stamper()} // data received = {data.hex()}")
+						
                         if not data:
                             break
                         elif imei_checker(data.hex()) != False:
@@ -126,8 +131,8 @@ def start_server_tigger():
                             print(f"received records {record_number}")
                             print(f"from device IMEI = {device_imei}")
                             print()
-
-
+							
+							
                             record_response = (record_number).to_bytes(4, byteorder="big")
                             conn.sendall(record_response)
                             print(f"// {time_stamper()} // response sent = {record_response.hex()}")
@@ -201,13 +206,13 @@ def codec_8e_parser(codec_8E_packet, device_imei, props): #think a lot before mo
 		data_field_position += len(priority)
 
 		latitude = avl_data_start[data_field_position:data_field_position+8]
-		io_dict["latitude"] = struct.unpack('>f', bytes.fromhex(latitude))[0]
-		print(f"latitude = {struct.unpack('>f', bytes.fromhex(latitude))[0]}")
+		io_dict["latitude"] = struct.unpack('>i', bytes.fromhex(latitude))[0]
+		print(f"latitude = {struct.unpack('>i', bytes.fromhex(latitude))[0]}")
 		data_field_position += len(latitude)
 
 		longitude = avl_data_start[data_field_position:data_field_position+8]
-		io_dict["longitude"] = struct.unpack('>f', bytes.fromhex(longitude))[0]
-		print(f"longitude = {struct.unpack('>f', bytes.fromhex(longitude))[0]}")
+		io_dict["longitude"] = struct.unpack('>i', bytes.fromhex(longitude))[0]
+		print(f"longitude = {struct.unpack('>i', bytes.fromhex(longitude))[0]}")
 		data_field_position += len(longitude)
 
 		altitude = avl_data_start[data_field_position:data_field_position+4]
@@ -347,10 +352,7 @@ def codec_8e_parser(codec_8E_packet, device_imei, props): #think a lot before mo
 		
 		try: #writing dictionary to ./data/data.json
 			json_data = json.dumps(io_dict)
-			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-				client_socket.connect(('0.tcp.sa.ngrok.io', 18674))
-				client_socket.sendall(json_data.encode())
-				print(f"Data sent to Node.js server")
+			
 			json_printer(io_dict, device_imei)
 		except Exception as e:
 			print(f"JSON writing error occured = {e}")
