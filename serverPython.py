@@ -73,7 +73,7 @@ def codec_8e_checker(codec8_packet):
 def codec_parser_trigger(codec8_packet, device_imei, props):
 		try:			
 			with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-				client_socket.connect(('0.tcp.sa.ngrok.io', 18674))
+				client_socket.connect(('0.tcp.sa.ngrok.io', 10622))
 				client_socket.sendall(codec8_packet)
 				print(f"Data sent to Node.js server")
 			return codec_8e_parser(codec8_packet.replace(" ",""), device_imei, props)
