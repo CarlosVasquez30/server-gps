@@ -37,7 +37,8 @@
           console.log("CodecType:", parsed.CodecType);
   
           if (parsed.CodecType == "data sending") {
-            let avlDatas = parsed.Content
+              let avlDatas = parsed.Content
+              console.log({avlDatas})
             const avlData = avlDatas.AVL_Datas[1];
             const gpsElement = avlData.GPSelement;
             var date_ob = new Date(avlData.Timestamp);
