@@ -1,5 +1,6 @@
 const Parser = require('teltonika-parser-ex');
 const binutils = require('binutils64');
+const net = require('net')
 
 
 let server = net.createServer((c) => {
