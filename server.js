@@ -19,7 +19,10 @@
         const srcIp = `${buf[12]}.${buf[13]}.${buf[14]}.${buf[15]}`;
         console.log("device ip:", srcIp);
   
-        const packet = response.toString("hex");
+          const packet = response.toString("hex");
+          
+          let parsed = new ProtocolParser(packet);
+          console.log({ packet, parsed })
   
         if (packet.length === 34) {
           imei = parseIMEI(packet)
