@@ -13,6 +13,7 @@ let server = net.createServer((c) => {
 
         let buffer = data;
         let parser = new Parser(buffer);
+        console.log({parser})
         if(parser.isImei){
             c.write(Buffer.alloc(1, 1));
         }else {
@@ -23,6 +24,7 @@ let server = net.createServer((c) => {
 
             let response = writer.ByteBuffer;
             c.write(response);
+            console.log({response})
         }
     });
 });
