@@ -1,45 +1,31 @@
-const net = require("net")
-
-const server = net.createServer();
- 
-
-server.on("connection", (socket) => {
+const Parser = require('teltonika-parser-ex');
+const binutils = require('binutils64');
 
 
-  socket.setEncoding("hex");
+let server = net.createServer((c) => {
+    console.log("client connected");
+    c.on('end', () => {
+        console.log("client disconnected");
+    });
 
+    c.on('data', (data) => {
 
-  socket.on("data", (data) => {
+        let buffer = data;
+        let parser = new Parser(buffer);
+        if(parser.isImei){
+            c.write(Buffer.alloc(1, 1));
+        }else {
+            let avl = parser.getAvl();
 
+            let writer = new binutils.BinaryWriter();
+            writer.WriteInt32(avl.number_of_data);
 
-    socket.write("\x01");
-
-
-    console.log(data);
-
-
-  });
- 
-
-  socket.on("close", () => {});
- 
-
-  socket.on("error", (err) => {
-
-
-    console.log(err.message);
-
-
-  });
-
-
+            let response = writer.ByteBuffer;
+            c.write(response);
+        }
+    });
 });
- 
 
-server.listen(443, () => {
-
-
-  console.log("Server listening at " + server.address().port);
-
-
+server.listen(80, () => {
+    console.log("Server started");
 });
