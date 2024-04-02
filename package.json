@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "binutils64": "^0.1.2",
+    "teltonika-decoder": "^0.1.1",
     "teltonika-parser-ex": "^0.0.16"
   }
 }

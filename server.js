@@ -1,6 +1,6 @@
-const Parser = require('teltonika-parser-ex');
-const binutils = require('binutils64');
+
 const net = require('net')
+const { decode } = require("teltonika-decoder")
 
 
 let server = net.createServer((c) => {
@@ -12,20 +12,8 @@ let server = net.createServer((c) => {
     c.on('data', (data) => {
 
         let buffer = data;
-        let parser = new Parser(buffer);
-        console.log({parser})
-        if(parser.isImei){
-            c.write(Buffer.alloc(1, 1));
-        }else {
-            let avl = parser.getAvl();
-
-            let writer = new binutils.BinaryWriter();
-            writer.WriteInt32(avl.number_of_data);
-
-            let response = writer.ByteBuffer;
-            c.write(response);
-            console.log({response})
-        }
+        const decoded = decode(Buffer.from(buffer, 'hex'))
+        console.log(decoded)
     });
 });
 
