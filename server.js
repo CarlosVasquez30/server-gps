@@ -21,8 +21,7 @@
   
           const packet = response.toString("hex");
           
-          let parsed = new ProtocolParser(packet);
-          console.log({ packet, parsed })
+          console.log({ packet, length: packet.length })
   
         if (packet.length === 34) {
           imei = parseIMEI(packet)
