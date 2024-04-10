@@ -14,7 +14,7 @@
       var imei
       socket.on("data", (response) => {
           const buf = Buffer.from(response);
-          console.log({buf: buf.toString(), response: response.toString()})
+          //console.log({buf: buf.toString(), response: response.toString()})
         // Extract the source and destination IP addresses from the buffer
         const srcIp = `${buf[12]}.${buf[13]}.${buf[14]}.${buf[15]}`;
         console.log("device ip:", srcIp);
@@ -25,7 +25,7 @@
   
         if (packet.length === 34) {
           imei = parseIMEI(packet)
-          const acceptData = true; // Set to true or false based on whether the server should accept data from this module
+          const acceptData = true; 
           const confirmationPacket = Buffer.alloc(1);
           confirmationPacket.writeUInt8(acceptData ? 0x01 : 0x00);
           socket.write(confirmationPacket);
@@ -38,6 +38,7 @@
           const dataLength = parsed.Data_Length;
           console.log("CodecType:", parsed.CodecType);
   
+          console.log({content: parsed.Content})
           if (parsed.CodecType == "data sending") {
               let avlDatas = parsed.Content
               avlDatas.AVL_Datas.map((ad) => console.log(ad))
