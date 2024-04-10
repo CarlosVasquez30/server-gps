@@ -133,6 +133,9 @@
             //} else {
             //let gprs = parsed.Content
             //console.log("gprs-----");
+          } else {
+            let gprs = parsed.Content
+            console.log("gprs-----",gprs);
           }
         }
       });
