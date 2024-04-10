@@ -32,6 +32,8 @@
   
           console.log("imei------", imei);
           console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
+          socket.write("000000000000000D0C010500000005676574696F01000000CB")
+          console.log('Sent command GPRS')
         }
         else {
           let parsed = new ProtocolParser(packet);
