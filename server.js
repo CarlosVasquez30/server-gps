@@ -14,7 +14,7 @@
       var imei
       socket.on("data", (response) => {
           const buf = Buffer.from(response);
-          //console.log({buf: buf.toString(), response: response.toString()})
+          console.log({response: response.toString()})
         // Extract the source and destination IP addresses from the buffer
         const srcIp = `${buf[12]}.${buf[13]}.${buf[14]}.${buf[15]}`;
         console.log("device ip:", srcIp);
