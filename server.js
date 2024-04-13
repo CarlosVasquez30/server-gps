@@ -32,7 +32,6 @@
   
           console.log("imei------", imei);
           console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
-          console.log('Sent command GPRS')
         }
         else {
           let parsed = new ProtocolParser(packet);
@@ -130,7 +129,10 @@
             dataReceivedPacket.writeUInt32BE(dataLength);
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
-            socket.write("000000000000000F0C010500000007676574696E666F0100004312")
+            const hexString = "000000000000000F0C010500000007676574696E666F0100004312";
+            const hexBuffer = Buffer.from(hexString, 'hex');
+            socket.write(hexBuffer)
+            console.log('Sent command GPRS')
             //} else {
             //let gprs = parsed.Content
             //console.log("gprs-----");
