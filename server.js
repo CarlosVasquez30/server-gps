@@ -142,7 +142,7 @@
         }
       });
     });
-    server.listen(443, () => {
-      console.log("Teltonika server listening on port 443");
+    server.listen(80, () => {
+      console.log("Teltonika server listening on port 80");
     });
   })()
