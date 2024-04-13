@@ -32,7 +32,7 @@
   
           console.log("imei------", imei);
           console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
-          socket.write("000000000000000F0C010500000007676574696E666F0100004312")
+          socket.write("000000000000000D0C010500000005676574696F01000000CB")
           console.log('Sent command GPRS')
         }
         else {
