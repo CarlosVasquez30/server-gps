@@ -125,7 +125,7 @@
               console.error(error);
             });
   
-            const dataReceivedPacket = Buffer.alloc(avlDatas.AVL_Datas.length);
+            const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
