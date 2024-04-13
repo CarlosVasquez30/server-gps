@@ -132,7 +132,7 @@
             const hexString = "000000000000000F0C010500000007676574696E666F0100004312";
             const hexBuffer = Buffer.from(hexString, 'hex');
             socket.write(hexBuffer)
-            console.log('Sent command GPRS')
+            console.log('Sent command GPRS', {hexBuffer})
             //} else {
             //let gprs = parsed.Content
             //console.log("gprs-----");
