@@ -127,6 +127,7 @@
   
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
+            console.log({dataReceivedPacket})
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
             const hexString = "000000000000000F0C010500000007676574696E666F0100004312";
