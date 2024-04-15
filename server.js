@@ -35,13 +35,13 @@
         }
         else {
           let parsed = new ProtocolParser(packet);
-          const dataLength = parsed.Data_Length;
+          const dataLength = parsed.Content.AVL_Datas.length;
           console.log("CodecType:", parsed.CodecType);
   
           console.log({content: parsed.Content})
           if (parsed.CodecType == "data sending") {
               let avlDatas = parsed.Content
-              avlDatas.AVL_Datas.map((ad) => console.log(ad))
+              avlDatas.AVL_Datas.map((ad) => console.log({ad}))
             const avlData = avlDatas.AVL_Datas[1];
             const gpsElement = avlData.GPSelement;
             var date_ob = new Date(avlData.Timestamp);
