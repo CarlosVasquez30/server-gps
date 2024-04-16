@@ -42,88 +42,92 @@
           if (parsed.CodecType == "data sending") {
               let avlDatas = parsed.Content
               avlDatas.AVL_Datas.map((ad) => console.log({ad}))
-            const avlData = avlDatas.AVL_Datas[1];
-            const gpsElement = avlData.GPSelement;
-            var date_ob = new Date(avlData.Timestamp);
-            const timestamp = avlData.Timestamp;//new Date(avlData.Timestamp * 1000).toISOString();;
-  
-            const longitude = gpsElement.Longitude;
-            const latitude = gpsElement.Latitude;
-            const speed = gpsElement.Speed;
-  
-  
-            const ioElement = avlData.IOelement;
-  
-            //movement detection
-            let movement = 0;
-            if (ioElement.Elements && ioElement.Elements['240']) {
-              movement = ioElement.Elements['240'];
-            }
-  
-            let signalStatus = 0;
-            if (ioElement.Elements && ioElement.Elements['21']) {
-              signalStatus = ioElement.Elements['21'];
-            }
-  
-            let battery = 0;
-            if (ioElement.Elements && ioElement.Elements['66']) {
-              battery = ioElement.Elements['66'] * 100 / 13090;
-            }
-  
-            let fuel = 0;
-            if (ioElement.Elements && ioElement.Elements['9']) {
-              fuel = ioElement.Elements['9'] * 0.001;
-            }
-  
-            let iccid = '';
-            if (ioElement.Elements && ioElement.Elements['11'] && ioElement.Elements['14']) {
-              let iccid1 = ioElement.Elements['11'];
-              let iccid2 = ioElement.Elements['14'];
-              iccid = iccid1.toString() + iccid2.toString();
-            }
-  
-            let ignition = 0;
-            if (ioElement.Elements && ioElement.Elements['239']) {
-              ignition = ioElement.Elements['239'];
-            }
-  
-            const deviceInfo = { longitude, latitude, speed, 
-            timestamp, movement, battery, fuel, signalStatus, iccid, ignition };
-  
-  
-            let address = '';
-            https.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyD9vdLrtEtIZ-U2i8tRqMVyrI0J_KbfeDk`, (response) => {
-              let data = '';
-  
-              response.on('data', (chunk) => {
-                data += chunk;
+            try {
+              const avlData = avlDatas.AVL_Datas[1];
+              const gpsElement = avlData.GPSelement;
+              var date_ob = new Date(avlData.Timestamp);
+              const timestamp = avlData.Timestamp;//new Date(avlData.Timestamp * 1000).toISOString();;
+    
+              const longitude = gpsElement.Longitude;
+              const latitude = gpsElement.Latitude;
+              const speed = gpsElement.Speed;
+    
+    
+              const ioElement = avlData.IOelement;
+    
+              //movement detection
+              let movement = 0;
+              if (ioElement.Elements && ioElement.Elements['240']) {
+                movement = ioElement.Elements['240'];
+              }
+    
+              let signalStatus = 0;
+              if (ioElement.Elements && ioElement.Elements['21']) {
+                signalStatus = ioElement.Elements['21'];
+              }
+    
+              let battery = 0;
+              if (ioElement.Elements && ioElement.Elements['66']) {
+                battery = ioElement.Elements['66'] * 100 / 13090;
+              }
+    
+              let fuel = 0;
+              if (ioElement.Elements && ioElement.Elements['9']) {
+                fuel = ioElement.Elements['9'] * 0.001;
+              }
+    
+              let iccid = '';
+              if (ioElement.Elements && ioElement.Elements['11'] && ioElement.Elements['14']) {
+                let iccid1 = ioElement.Elements['11'];
+                let iccid2 = ioElement.Elements['14'];
+                iccid = iccid1.toString() + iccid2.toString();
+              }
+    
+              let ignition = 0;
+              if (ioElement.Elements && ioElement.Elements['239']) {
+                ignition = ioElement.Elements['239'];
+              }
+    
+              const deviceInfo = { longitude, latitude, speed, 
+              timestamp, movement, battery, fuel, signalStatus, iccid, ignition };
+    
+    
+              let address = '';
+              https.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyD9vdLrtEtIZ-U2i8tRqMVyrI0J_KbfeDk`, (response) => {
+                let data = '';
+    
+                response.on('data', (chunk) => {
+                  data += chunk;
+                });
+    
+                response.on('end', () => {
+                  let res = JSON.parse(data);
+                  address = res.results[0]? res.results[0].formatted_address : '';
+    
+                  console.log('device info --------', deviceInfo);
+                  let record = {
+                      deviceImei: imei,
+                      lat: latitude,
+                      lng: longitude,
+                      transferDate: timestamp,
+                      movement: movement,
+                      speed: speed,
+                      fuel: fuel,
+                      battery: battery,
+                      signal: signalStatus,
+                      address: address,
+                      iccid: iccid,
+                      ignition : ignition,
+                      ip: srcIp
+                  };
+                  console.log({record})
+                });
+              }).on('error', (error) => {
+                console.error(error);
               });
-  
-              response.on('end', () => {
-                let res = JSON.parse(data);
-                address = res.results[0]? res.results[0].formatted_address : '';
-  
-                console.log('device info --------', deviceInfo);
-                let record = {
-                    deviceImei: imei,
-                    lat: latitude,
-                    lng: longitude,
-                    transferDate: timestamp,
-                    movement: movement,
-                    speed: speed,
-                    fuel: fuel,
-                    battery: battery,
-                    signal: signalStatus,
-                    address: address,
-                    iccid: iccid,
-                    ignition : ignition,
-                    ip: srcIp
-                };
-                console.log({record})
-              });
-            }).on('error', (error) => {
-              console.error(error);
-            });
+            } catch (error) {
+              console.log(error)
+            }
   
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
