@@ -207,7 +207,7 @@ function sendHourmeterData(model) {
   const postData = JSON.stringify(model);
   console.log({postData})
   const options = {
-    hostname: '18.228.232.179',
+    hostname: 'controller.agrochofa.cl',
     port: 80,
     path: '/api/sga/logsHorometro/crear',
     method: 'POST',
