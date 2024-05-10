@@ -207,13 +207,14 @@ function sendHourmeterData(model) {
   const postData = JSON.stringify(model);
   console.log({postData})
   const options = {
-    hostname: 'controller.agrochofa.cl',
-    path: '/api/sga/logsHorometro/crear',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    }
-};
+      hostname: '192.168.1.22', // Cambia esto por la URL del otro servidor
+      port: 3000, // Cambia esto por el puerto correcto si es diferente
+      path: '/sga/logsHorometro/crear', // Cambia esto por la ruta del endpoint del otro servidor
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      }
+  };
 
   // Crea la petición HTTP
   const req = http.request(options, (res) => {

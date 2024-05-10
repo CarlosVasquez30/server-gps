@@ -15,8 +15,5 @@
     "complete-teltonika-parser": "^0.3.6",
     "teltonika-decoder": "^0.1.1",
     "teltonika-parser-ex": "^0.0.16"
-  },
-  "devDependencies": {
-    "@types/node": "^20.12.7"
   }
 }
