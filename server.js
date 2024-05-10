@@ -198,7 +198,7 @@ function transformPacket(packet) {
   return transformedPacket;
 }
 
-const http = require("http");
+const https = require("https");
 
 
 function sendHourmeterData(model) {
@@ -207,7 +207,7 @@ function sendHourmeterData(model) {
   const postData = JSON.stringify(model);
   console.log({postData})
   const options = {
-    hostname: 'https://18.228.232.179',
+    hostname: '18.228.232.179',
     port: 80,
     path: '/api/sga/logsHorometro/crear',
     method: 'POST',
@@ -216,8 +216,10 @@ function sendHourmeterData(model) {
     } 
   };
 
+  
+
   // Crea la petición HTTP
-  const req = http.request(options, (res) => {
+  const req = https.request(options, (res) => {
       console.log(`Estado de la petición: ${res.statusCode}`);
 
       res.on('data', (chunk) => {
