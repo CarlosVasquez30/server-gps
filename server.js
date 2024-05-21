@@ -159,13 +159,7 @@
             console.log({dataReceivedPacket})
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
-            const hexString = "000000000000000F0C010500000007676574696E666F0100004312";
-            const hexBuffer = Buffer.from(hexString, 'hex');
-            //socket.write(hexBuffer)
-            //console.log('Sent command GPRS', {hexBuffer})
-            //} else {
-            //let gprs = parsed.Content
-            //console.log("gprs-----");
+            
           } else {
             let gprs = parsed.Content
             console.log("gprs-----",gprs);
@@ -200,12 +194,42 @@ function transformPacket(packet) {
 
 const https = require("https");
 
+function sendGPSData(model) {
+  
+  // Datos para la petición HTTP
+  const postData = JSON.stringify(model);
+  const options = {
+    hostname: 'controller.agrochofa.cl',
+    port: 443,
+    path: '/api/sga/logsGPS/crear',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`Estado de la petición: ${res.statusCode}`);
+
+    res.on('data', (chunk) => {
+        console.log(`Datos recibidos del otro servidor: ${chunk}`);
+    });
+  });
+
+  req.on('error', (error) => {
+      console.error('Error al enviar la petición al otro servidor:', error);
+  });
+
+  // Envía los datos al otro servidor
+  req.write(postData);
+  req.end();
+
+}
 
 function sendHourmeterData(model) {
   
   // Datos para la petición HTTP
   const postData = JSON.stringify(model);
-  console.log({postData})
   const options = {
     hostname: 'controller.agrochofa.cl',
     port: 443,
@@ -215,8 +239,6 @@ function sendHourmeterData(model) {
         'Content-Type': 'application/json',
     } 
   };
-
-  
 
   // Crea la petición HTTP
   const req = https.request(options, (res) => {
