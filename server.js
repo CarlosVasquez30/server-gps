@@ -154,9 +154,8 @@
               console.log(error)
             }
 
-            const avlData = avlDatas.AVL_Datas[1];
-            const gpsElement = avlData?.GPSelement;
-            console.log({ gpsElement })
+            const avlData = avlDatas.AVL_Datas;
+            console.log({ avlData })
             
             const latitude = gpsElement.Latitude;
             const longitude = gpsElement.longitude;
