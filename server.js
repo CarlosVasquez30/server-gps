@@ -153,7 +153,7 @@
             } catch (error) {
               console.log(error)
             }
-            console.log({parsed})
+            const { latitude, longitude } = avlDatas.AVL_Datas[0]
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
