@@ -69,7 +69,7 @@
               avlDatas.AVL_Datas.map((ad) => console.log({ad}))
             try {
               const avlData = avlDatas.AVL_Datas[1];
-              const gpsElement = avlData.GPSelement;
+              const gpsElement = avlData?.GPSelement;
               var date_ob = new Date(avlData.Timestamp);
               const timestamp = avlData.Timestamp;//new Date(avlData.Timestamp * 1000).toISOString();;
     
@@ -159,7 +159,7 @@
             console.log({dataReceivedPacket})
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
-            
+            sendGPSData({ imei, lat: latitude, lng: longitude });
           } else {
             let gprs = parsed.Content
             console.log("gprs-----",gprs);
