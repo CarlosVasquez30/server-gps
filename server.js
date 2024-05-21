@@ -167,8 +167,8 @@
         }
       });
     });
-    server.listen(8080, () => {
-      console.log("Teltonika server listening on port 8080");
+    server.listen(80, () => {
+      console.log("Teltonika server listening on port 80");
     });
 })()
   
