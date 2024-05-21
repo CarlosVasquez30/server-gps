@@ -153,7 +153,13 @@
             } catch (error) {
               console.log(error)
             }
-            const { latitude, longitude } = avlDatas.AVL_Datas[0]
+
+            const avlData = avlDatas.AVL_Datas[1];
+            const gpsElement = avlData?.GPSelement;
+            console.log({ gpsElement })
+            
+            const latitude = gpsElement.Latitude;
+            const longitude = gpsElement.longitude;
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
