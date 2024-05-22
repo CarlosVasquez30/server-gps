@@ -155,16 +155,20 @@
             }
 
             const avlData = avlDatas.AVL_Datas;
-            console.log({ gps: avlData[1].GPSelement })
             
-            const latitude = gpsElement.Latitude;
-            const longitude = gpsElement.longitude;
+            
+            const latitude = avlData[1].GPSelement.Latitude;
+            const longitude = avlData[1].GPSelement.Longitude;
+            console.log({ latitude, longitude })
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
-            sendGPSData({ imei, lat: latitude, lng: longitude });
+            if (latitude && longitude) {
+              sendGPSData({ imei, lat: parseFloat(latitude), lng: parseFloat(longitude) });
+            }
+            
           } else {
             let gprs = parsed.Content
             console.log("gprs-----",gprs);
