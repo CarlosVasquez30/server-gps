@@ -156,8 +156,8 @@
             const avlData = avlDatas.AVL_Datas;
             
             
-            const latitude = avlData[1].GPSelement.Latitude;
-            const longitude = avlData[1].GPSelement.Longitude;
+            const latitude = avlData[1]?.GPSelement.Latitude;
+            const longitude = avlData[1]?.GPSelement.Longitude;
             console.log({ latitude, longitude })
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
