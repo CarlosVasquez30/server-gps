@@ -81,34 +81,34 @@
     
               //movement detection
               let movement = 0;
-              if (ioElement.Elements && ioElement.Elements['240']) {
+              if (ioElement && ioElement.Elements && ioElement.Elements['240']) {
                 movement = ioElement.Elements['240'];
               }
     
               let signalStatus = 0;
-              if (ioElement.Elements && ioElement.Elements['21']) {
+              if (ioElement && ioElement.Elements && ioElement.Elements['21']) {
                 signalStatus = ioElement.Elements['21'];
               }
     
               let battery = 0;
-              if (ioElement.Elements && ioElement.Elements['66']) {
+              if (ioElement && ioElement.Elements && ioElement.Elements['66']) {
                 battery = ioElement.Elements['66'] * 100 / 13090;
               }
     
               let fuel = 0;
-              if (ioElement.Elements && ioElement.Elements['9']) {
+              if (ioElement && ioElement.Elements && ioElement.Elements['9']) {
                 fuel = ioElement.Elements['9'] * 0.001;
               }
     
               let iccid = '';
-              if (ioElement.Elements && ioElement.Elements['11'] && ioElement.Elements['14']) {
+              if (ioElement && ioElement.Elements && ioElement.Elements['11'] && ioElement.Elements['14']) {
                 let iccid1 = ioElement.Elements['11'];
                 let iccid2 = ioElement.Elements['14'];
                 iccid = iccid1.toString() + iccid2.toString();
               }
     
               let ignition = 0;
-              if (ioElement.Elements && ioElement.Elements['239']) {
+              if (ioElement && ioElement.Elements && ioElement.Elements['239']) {
                 ignition = ioElement.Elements['239'];
               }
     
