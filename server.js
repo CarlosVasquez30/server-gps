@@ -72,12 +72,12 @@
               const gpsElement = avlData?.GPSelement;
               const timestamp = avlData?.Timestamp;
     
-              const longitude = gpsElement.Longitude;
-              const latitude = gpsElement.Latitude;
-              const speed = gpsElement.Speed;
+              const longitude = gpsElement?.Longitude;
+              const latitude = gpsElement?.Latitude;
+              const speed = gpsElement?.Speed;
     
     
-              const ioElement = avlData.IOelement;
+              const ioElement = avlData?.IOelement;
     
               //movement detection
               let movement = 0;
