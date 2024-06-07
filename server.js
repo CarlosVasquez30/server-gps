@@ -70,8 +70,7 @@
             try {
               const avlData = avlDatas.AVL_Datas[1];
               const gpsElement = avlData?.GPSelement;
-              var date_ob = new Date(avlData.Timestamp);
-              const timestamp = avlData.Timestamp;//new Date(avlData.Timestamp * 1000).toISOString();;
+              const timestamp = avlData?.Timestamp;
     
               const longitude = gpsElement.Longitude;
               const latitude = gpsElement.Latitude;
