@@ -157,7 +157,9 @@
             
             if (imei === "863719064985097") {
               const command = "CMD1, 1800 <CR><LF>"
-              socket.write(buildCodec12Command(command))
+              const codec12Command = buildCodec12Command(command);
+              socket.write(codec12Command)
+              console.log({codec12Command})
             }
             
             const latitude = avlData[0]?.GPSelement.Latitude;
