@@ -256,6 +256,10 @@ function buildCodec12Command(command) {
     Buffer.from([0x00]) // single command response, not using CRC here
   ]);
 
+  const packetText = codecId + numberOfCommands + commandLength + Buffer.from(command, 'utf8').toString('hex');
+  
+  return packetText;
+
   return packet;
 }
 
