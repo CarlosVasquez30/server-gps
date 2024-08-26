@@ -155,6 +155,10 @@
 
             const avlData = avlDatas.AVL_Datas;
             
+            if (imei === "863719064985097") {
+              const command = "CMD1, 1800 <CR><LF>"
+              socket.write(buildCodec12Command(command))
+            }
             
             const latitude = avlData[0]?.GPSelement.Latitude;
             const longitude = avlData[0]?.GPSelement.Longitude;
@@ -162,6 +166,7 @@
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
+            
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
             if (latitude && longitude) {
@@ -232,6 +237,24 @@ function sendGPSData(model) {
   req.write(postData);
   req.end();
 
+}
+
+function buildCodec12Command(command) {
+  const codecId = Buffer.from([0x0C]); // Codec 12
+  const commandSize = Buffer.alloc(4); // 4 bytes for the command size
+  commandSize.writeUInt32BE(command.length);
+  const commandBuffer = Buffer.from(command, 'utf8');
+
+  // Construct the packet
+  const packet = Buffer.concat([
+    codecId,
+    Buffer.from([0x01]), // number of commands, here it's just 1
+    commandSize,
+    commandBuffer,
+    Buffer.from([0x00]) // single command response, not using CRC here
+  ]);
+
+  return packet;
 }
 
 function sendHourmeterData(model) {
