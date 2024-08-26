@@ -241,26 +241,33 @@ function sendGPSData(model) {
 
 }
 
-function buildCodec12Command(command) {
-  const codecId = Buffer.from([0x0C]); // Codec 12
-  const commandSize = Buffer.alloc(4); // 4 bytes for the command size
-  commandSize.writeUInt32BE(command.length);
-  const commandBuffer = Buffer.from(command, 'utf8');
+function buildCodec12Command(command, isText) {
+  if (isText) {
+    let codecId = Buffer.from([0x0C]); // Codec 12
+    const commandSize = Buffer.alloc(4); // 4 bytes for the command size
+    commandSize.writeUInt32BE(command.length);
+    const commandBuffer = Buffer.from(command, 'utf8');
 
-  // Construct the packet
-  const packet = Buffer.concat([
-    codecId,
-    Buffer.from([0x01]), // number of commands, here it's just 1
-    commandSize,
-    commandBuffer,
-    Buffer.from([0x00]) // single command response, not using CRC here
-  ]);
-
-  const packetText = codecId + numberOfCommands + commandLength + Buffer.from(command, 'utf8').toString('hex');
+    // Construct the packet
+    return Buffer.concat([
+      codecId,
+      Buffer.from([0x01]), // number of commands, here it's just 1
+      commandSize,
+      commandBuffer,
+      Buffer.from([0x00]) // single command response, not using CRC here
+    ]); 
+  }
   
-  return packetText;
 
+  codecId = "0C"; // Codec 12 en hexadecimal
+  const numberOfCommands = "01"; // Solo un comando, en hexadecimal
+  const commandLength = command.length.toString(16).padStart(8, '0'); // Longitud del comando en hexadecimal (4 bytes)
+  
+  // Comando completo en formato texto codec 12
+  const packet = codecId + numberOfCommands + commandLength + Buffer.from(command, 'utf8').toString('hex');
+  
   return packet;
+
 }
 
 function sendHourmeterData(model) {
