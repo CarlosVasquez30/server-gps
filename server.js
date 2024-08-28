@@ -164,7 +164,8 @@
             
             const latitude = avlData[0]?.GPSelement.Latitude;
             const longitude = avlData[0]?.GPSelement.Longitude;
-            console.log({ latitude, longitude })
+            const fuel = avlData[0]?.GPSelement.fuel;
+            console.log({ latitude, longitude, fuel })
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
