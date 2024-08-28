@@ -113,7 +113,13 @@
               }
     
               const deviceInfo = { longitude, latitude, speed, 
-              timestamp, movement, battery, fuel, signalStatus, iccid, ignition };
+                timestamp, movement, battery, fuel, signalStatus, iccid, ignition
+              };
+              
+              if (deviceInfo.fuel) {
+                const fuel = deviceInfo.fuel;
+                sendFuelData({fuel, imei})
+              }
     
     
               let address = '';
@@ -164,8 +170,7 @@
             
             const latitude = avlData[0]?.GPSelement.Latitude;
             const longitude = avlData[0]?.GPSelement.Longitude;
-            const fuel = avlData[0]?.GPSelement.fuel;
-            console.log({ latitude, longitude, fuel })
+            console.log({ latitude, longitude })
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
@@ -209,6 +214,38 @@ function transformPacket(packet) {
 }
 
 const https = require("https");
+
+function sendFuelData(model) {
+  
+  // Datos para la petición HTTP
+  const postData = JSON.stringify(model);
+  const options = {
+    hostname: 'controller.agrochofa.cl',
+    port: 443,
+    path: '/api/sga/logsCombustible/crear',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`Estado de la petición: ${res.statusCode}`);
+
+    res.on('data', (chunk) => {
+        console.log(`Datos recibidos del otro servidor: ${chunk}`);
+    });
+  });
+
+  req.on('error', (error) => {
+      console.error('Error al enviar la petición al otro servidor:', error);
+  });
+
+  // Envía los datos al otro servidor
+  req.write(postData);
+  req.end();
+
+}
 
 function sendGPSData(model) {
   
