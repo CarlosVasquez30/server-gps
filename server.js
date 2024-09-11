@@ -168,9 +168,10 @@
               console.log({codec12Command})
             }*/
             
-            const latitude = avlData[0]?.GPSelement.Latitude;
-            const longitude = avlData[0]?.GPSelement.Longitude;
-            console.log({ latitude, longitude })
+            const latitude = avlData[-1]?.GPSelement.Latitude;
+            const longitude = avlData[-1]?.GPSelement.Longitude;
+            const transferDate = avlData[-1]?.Timestamp;
+            console.log({ latitude, longitude, transferDate })
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
@@ -178,7 +179,12 @@
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
             if (latitude && longitude) {
-              sendGPSData({ imei, lat: parseFloat(latitude), lng: parseFloat(longitude) });
+              sendGPSData(
+                {
+                  imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
+                  transferDate,
+                  ignition
+                });
             }
             
           } else {
@@ -248,7 +254,7 @@ function sendFuelData(model) {
 }
 
 function sendGPSData(model) {
-  
+  console.log({modelGPS: model})
   // Datos para la petición HTTP
   const postData = JSON.stringify(model);
   const options = {
