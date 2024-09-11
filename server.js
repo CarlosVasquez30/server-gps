@@ -122,7 +122,7 @@
 
               sendGPSData(
                 {
-                  imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
+                  imei, lat: latitude, lng: longitude,
                   transferDate: new Date(timestamp),
                   ignition
                 });
