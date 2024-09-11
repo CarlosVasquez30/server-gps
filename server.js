@@ -121,11 +121,11 @@
               }
 
               if (ignition) {
-                console.log({ latitude, longitude, transferDate });
+                console.log({ latitude, longitude, timestamp });
                 sendGPSData(
                   {
                     imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
-                    transferDate,
+                    transferDate: timestamp,
                     ignition
                   });
               }
