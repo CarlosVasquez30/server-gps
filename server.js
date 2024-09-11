@@ -120,15 +120,14 @@
                 sendFuelData({fuel, imei})
               }
 
-              if (ignition) {
-                console.log({ latitude, longitude, timestamp });
-                sendGPSData(
-                  {
-                    imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
-                    transferDate: timestamp,
-                    ignition
-                  });
-              }
+              console.log({ latitude, longitude, timestamp });
+              sendGPSData(
+                {
+                  imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
+                  transferDate: timestamp,
+                  ignition
+                });
+              
     
     
               let address = '';
