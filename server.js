@@ -116,9 +116,18 @@
                 timestamp, movement, battery, fuel, signalStatus, iccid, ignition
               };
               
-              if (deviceInfo.fuel) {
-                const fuel = deviceInfo.fuel;
+              if (fuel) {
                 sendFuelData({fuel, imei})
+              }
+
+              if (ignition) {
+                console.log({ latitude, longitude, transferDate });
+                sendGPSData(
+                  {
+                    imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
+                    transferDate,
+                    ignition
+                  });
               }
     
     
@@ -159,33 +168,14 @@
               console.log(error)
             }
 
-            const avlData = avlDatas.AVL_Datas;
             
-            /*if (imei === "863719064985097") {
-              const command = "CMD1, 1800 <CR><LF>"
-              const codec12Command = buildCodec12Command(command);
-              socket.write(codec12Command)
-              console.log({codec12Command})
-            }*/
-            
-            const latitude = avlData[-1]?.GPSelement.Latitude;
-            const longitude = avlData[-1]?.GPSelement.Longitude;
-            const transferDate = avlData[-1]?.Timestamp;
-            console.log({ latitude, longitude, transferDate })
             const dataReceivedPacket = Buffer.alloc(4);
             dataReceivedPacket.writeUInt32BE(dataLength);
             console.log({dataReceivedPacket})
             
             socket.write(dataReceivedPacket);
             console.log("dataLength --------", dataLength);
-            if (latitude && longitude) {
-              sendGPSData(
-                {
-                  imei, lat: parseFloat(latitude), lng: parseFloat(longitude),
-                  transferDate,
-                  ignition
-                });
-            }
+            
             
           } else {
             let gprs = parsed.Content
