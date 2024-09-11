@@ -68,7 +68,8 @@
               let avlDatas = parsed.Content
               avlDatas.AVL_Datas.map((ad) => console.log({ad}))
             try {
-              const avlData = avlDatas.AVL_Datas[1];
+              const index = avlDatas.AVL_Datas.length === 1 ? 0 : avlDatas.AVL_Datas.length - 1;
+              const avlData = avlDatas.AVL_Datas[index];
               const gpsElement = avlData?.GPSelement;
               const timestamp = avlData?.Timestamp;
     
@@ -119,6 +120,8 @@
               if (fuel) {
                 sendFuelData({fuel, imei})
               }
+
+              console.log({deviceInfo,avlData})
 
               sendGPSData(
                 {
