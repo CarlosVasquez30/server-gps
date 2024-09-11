@@ -244,7 +244,7 @@ function sendFuelData(model) {
 function sendGPSData(model) {
   console.log({modelGPS: model})
   // Datos para la petición HTTP
-  const postData = JSON.stringify(model);
+  const postData = model;
   const options = {
     hostname: 'controller.agrochofa.cl',
     port: 443,
