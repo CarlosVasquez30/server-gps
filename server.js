@@ -121,11 +121,11 @@
                 sendFuelData({fuel, imei})
               }
 
-              console.log({deviceInfo,avlData})
 
               sendGPSData(
                 {
-                  imei, lat: latitude, lng: longitude,
+                  imei, lat: isNaN(latitude) ? undefined : latitude,
+                  lng: isNaN(longitude) ? undefined : longitude,
                   transferDate: new Date(timestamp),
                   ignition
                 });
