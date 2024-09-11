@@ -315,7 +315,7 @@ function buildCodec12Command(command, isText) {
 }
 
 function sendHourmeterData(model) {
-  
+  if (!model.dataFrame) return;
   // Datos para la petición HTTP
   const postData = JSON.stringify(model);
   const options = {
