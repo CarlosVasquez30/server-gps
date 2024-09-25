@@ -112,6 +112,11 @@
               if (ioElement && ioElement.Elements && ioElement.Elements['239']) {
                 ignition = ioElement.Elements['239'];
               }
+
+              let secs = 0;
+              if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
+                secs = ioElement.Elements['449'];
+              }
     
               const deviceInfo = {
                 longitude, latitude, speed,
@@ -120,6 +125,10 @@
               
               if (fuel) {
                 sendFuelData({ fuel, imei })
+              }
+
+              if (secs) {
+                sendHourUpdateData({secs, imei})
               }
               console.log({ioElements: ioElement.Elements})
 
@@ -221,6 +230,38 @@ function sendFuelData(model) {
     hostname: 'controller.agrochofa.cl',
     port: 443,
     path: '/api/sga/logsCombustible/crear',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`Estado de la petición: ${res.statusCode}`);
+
+    res.on('data', (chunk) => {
+        console.log(`Datos recibidos del otro servidor: ${chunk}`);
+    });
+  });
+
+  req.on('error', (error) => {
+      console.error('Error al enviar la petición al otro servidor:', error);
+  });
+
+  // Envía los datos al otro servidor
+  req.write(postData);
+  req.end();
+
+}
+
+function sendHourUpdateData(model) {
+  
+  // Datos para la petición HTTP
+  const postData = JSON.stringify(model);
+  const options = {
+    hostname: 'controller.agrochofa.cl',
+    port: 443,
+    path: '/api/sga/logsHoras/crear',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
