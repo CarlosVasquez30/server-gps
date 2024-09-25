@@ -113,14 +113,15 @@
                 ignition = ioElement.Elements['239'];
               }
     
-              const deviceInfo = { longitude, latitude, speed, 
+              const deviceInfo = {
+                longitude, latitude, speed,
                 timestamp, movement, battery, fuel, signalStatus, iccid, ignition
               };
               
               if (fuel) {
-                sendFuelData({fuel, imei})
+                sendFuelData({ fuel, imei })
               }
-
+              console.log({avlData})
 
               sendGPSData(
                 {
