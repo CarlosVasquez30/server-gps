@@ -121,7 +121,7 @@
               if (fuel) {
                 sendFuelData({ fuel, imei })
               }
-              console.log({avlData})
+              console.log({ioElements: ioElement.Elements})
 
               sendGPSData(
                 {
