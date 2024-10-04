@@ -1,30 +1,12 @@
 ; (async () => {
-  const express = require("express");
     const fs = require("fs");
     const net = require("net");
     const axios = require('axios');
     const { ProtocolParser, parseIMEI, Data, GPRS, BufferReader } = require('complete-teltonika-parser')
     const https = require("https");
     const deviceMap = new Map();
-    const app = express();
-    app.use(express.json());
-    app.post('/api/cortacorriente', (req, res) => {
-      const { imei, activar } = req.body;
-      const comando = activar ? 'setdigout 1:1' : 'setdigout 1:0'; // Activar o desactivar
+
   
-      // Busca el dispositivo por IMEI
-      const socket = deviceMap.get(imei);
-  
-      if (socket) {
-          // Enviar comando al dispositivo
-          socket.write(comando);
-          console.log(`Comando enviado a dispositivo ${imei}: ${comando}`);
-          res.status(200).json({ success: true });
-      } else {
-          console.log(`Dispositivo no encontrado o desconectado: ${imei}`);
-          res.status(404).json({ success: false, error: 'Dispositivo no encontrado o desconectado' });
-      }
-  });
     
     // Create a Teltonika TCP server that listens on port 5500
     const server = net.createServer((socket) => {
@@ -213,10 +195,6 @@
     });
     server.listen(80, () => {
       console.log("Teltonika server listening on port 80");
-    });
-  
-    app.listen(3000, () => {
-      console.log("Servidor Express escuchando en el puerto 3000");
     });
 })()
 
