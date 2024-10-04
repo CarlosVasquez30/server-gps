@@ -4,7 +4,7 @@
     const axios = require('axios');
     const { ProtocolParser, parseIMEI, Data, GPRS, BufferReader } = require('complete-teltonika-parser')
     const https = require("https");
-    
+    const deviceMap = new Map();
 
     
     // Create a Teltonika TCP server that listens on port 5500
@@ -30,7 +30,8 @@
           const confirmationPacket = Buffer.alloc(1);
           confirmationPacket.writeUInt8(acceptData ? 0x01 : 0x00);
           socket.write(confirmationPacket);
-  
+          deviceMap.set(imei, socket);
+          console.log({deviceMap})
           console.log("imei------", imei);
           console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
         }
