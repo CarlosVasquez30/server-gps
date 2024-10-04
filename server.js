@@ -23,8 +23,7 @@
           const packet = response.toString("hex");
           
         console.log({ packet, length: packet.length })
-        deviceMap.set(imei, socket);
-          console.log({deviceMap})
+        
   
         if (packet.length === 34) {
           imei = parseIMEI(packet)
@@ -34,6 +33,8 @@
           socket.write(confirmationPacket);
           
           console.log("imei------", imei);
+          deviceMap.set(imei, socket);
+          console.log({deviceMap})
           console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
         }
         else {
