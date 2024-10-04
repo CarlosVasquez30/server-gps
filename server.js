@@ -39,25 +39,9 @@
           try {
             parsed = new ProtocolParser(packet);
           } catch (error) {
-            console.error(error)
+            console.error({error})
           }
           if (!parsed) {
-            const transformed = transformPacket(packet)
-            if (transformed) {
-              if (transformed.codecID === "0c") {
-                console.log("es Codec 12")
-                console.log({transformed})
-                console.log({ packet, imei })
-                const packetString = Buffer.from(transformed.command, 'hex').toString('utf-8');
-
-                console.log({ extractDesiredPart: extractDesiredPart(packetString) })
-                
-                sendHourmeterData({
-                  imei, dataFrame: extractDesiredPart(packetString)
-                });
-              }
-            }
-            
             return;
           }
           const dataLength = parsed.Content.AVL_Datas.length;
@@ -117,6 +101,11 @@
               if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
                 secs = ioElement.Elements['449'];
               }
+
+              let powerTakeOff = 0;
+              if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
+                powerTakeOff = ioElement.Elements['1'];
+              }
     
               const deviceInfo = {
                 longitude, latitude, speed,
@@ -125,6 +114,10 @@
               
               if (fuel) {
                 sendFuelData({ fuel, imei })
+              }
+
+              if (powerTakeOff) {
+                sendPowerTakeOffData({ powerTakeOff: powerTakeOff === 1, imei })
               }
 
               if (secs) {
@@ -221,6 +214,38 @@ function transformPacket(packet) {
 }
 
 const https = require("https");
+
+function sendPowerTakeOffData(model) {
+  
+  // Datos para la petición HTTP
+  const postData = JSON.stringify(model);
+  const options = {
+    hostname: 'controller.agrochofa.cl',
+    port: 443,
+    path: '/api/sga/logsTomaFuerza/crear',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`Estado de la petición: ${res.statusCode}`);
+
+    res.on('data', (chunk) => {
+        console.log(`Datos recibidos del otro servidor: ${chunk}`);
+    });
+  });
+
+  req.on('error', (error) => {
+      console.error('Error al enviar la petición al otro servidor:', error);
+  });
+
+  // Envía los datos al otro servidor
+  req.write(postData);
+  req.end();
+
+}
 
 function sendFuelData(model) {
   
