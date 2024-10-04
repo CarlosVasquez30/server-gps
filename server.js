@@ -117,8 +117,7 @@
               }
 
               if (powerTakeOff) {
-                const model = { powerTakeOff: powerTakeOff === 1, imei };
-                console.log({model})
+                const model = { status: powerTakeOff === 1, imei };
                 sendPowerTakeOffData(model)
               }
 
