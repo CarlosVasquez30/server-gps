@@ -37,15 +37,7 @@
             console.error('Error al enviar el paquete de confirmación:', err);
           } else {
             console.log(`Paquete de confirmación enviado: ${confirmationPacket}`);
-            
-            // Si el primer paquete se envió con éxito, enviar el siguiente comando
-            socket.write(commandPacket, (err) => {
-              if (err) {
-                console.error('Error al enviar el siguiente paquete:', err);
-              } else {
-                console.log(`Siguiente paquete enviado: ${commandPacket}`);
-              }
-            });
+                        
           }
         });
           
@@ -221,6 +213,7 @@
                     
                     deviceMap.delete(imei);
                     console.log(`IMEI ${imei} eliminado de deviceMap`);
+                    
                   }
                 });         
 
