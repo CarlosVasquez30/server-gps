@@ -37,31 +37,11 @@
             console.error('Error al enviar el paquete de confirmación:', err);
           } else {
             console.log(`Paquete de confirmación enviado: ${confirmationPacket}`);
-            const deviceTasks = deviceMap.get(imei);
-              console.log({ deviceTasks })
-              if (deviceTasks) {
-                const commandPacket = "000000000000000F0C010500000007676574696E666F0100004312"//buildCommandPacket(imei, "getinfo");
-                console.log({command: commandPacket})
-                socket.write(commandPacket, (err) => {
-                  if (err) {
-                    console.error('Error al enviar el comando:', err);
-                  } else {
-                    console.log(`Sent command packet: ${commandPacket}`);
-                    
-                    deviceMap.delete(imei);
-                    console.log(`IMEI ${imei} eliminado de deviceMap`);
-                    
-                  }
-                });         
-
-              }
+            
           }
         });
           
         console.log("imei------", imei);
-        
-        console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
-
          
 
       }
@@ -216,7 +196,30 @@
               dataReceivedPacket.writeUInt32BE(dataLength);
               console.log({ dataReceivedPacket })
             
-              //socket.write(dataReceivedPacket);
+              socket.write(dataReceivedPacket, (err) => {
+                if (err) {
+                  console.error({err})
+                } else {
+                  const deviceTasks = deviceMap.get(imei);
+                  console.log({ deviceTasks })
+                  if (deviceTasks) {
+                    const commandPacket = "000000000000000F0C010500000007676574696E666F0100004312"//buildCommandPacket(imei, "getinfo");
+                    console.log({command: commandPacket})
+                    socket.write(commandPacket, (err) => {
+                      if (err) {
+                        console.error('Error al enviar el comando:', err);
+                      } else {
+                        console.log(`Sent command packet: ${commandPacket}`);
+                        
+                        deviceMap.delete(imei);
+                        console.log(`IMEI ${imei} eliminado de deviceMap`);
+                        
+                      }
+                    });         
+
+                  }
+                }
+              });
               
               console.log("dataLength --------", dataLength);
             
