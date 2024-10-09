@@ -32,13 +32,14 @@
         const acceptData = true;
         const confirmationPacket = Buffer.alloc(1);
         confirmationPacket.writeUInt8(acceptData ? 0x01 : 0x00);
-        socket.write(confirmationPacket);
-          
-        console.log("imei------", imei);
-        
-        console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
-
-         const deviceTasks = deviceMap.get(imei);
+        socket.write(confirmationPacket, (err) => {
+          if (err) {
+            console.error('Error al enviar el paquete de confirmación:', err);
+          } else {
+            console.log(`Paquete de confirmación enviado: ${confirmationPacket}`);
+            
+            // Si el primer paquete se envió con éxito, enviar el siguiente comando
+            const deviceTasks = deviceMap.get(imei);
         console.log({ deviceTasks })
         if (deviceTasks) {
           const commandPacket = "000000000000000F0C010500000007676574696E666F0100004312"//buildCommandPacket(imei, "getinfo");
@@ -55,6 +56,14 @@
           });         
 
         }
+          }
+        });
+          
+        console.log("imei------", imei);
+        
+        console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
+
+         
 
       }
       else {
