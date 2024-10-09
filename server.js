@@ -205,7 +205,7 @@
         console.log({ deviceTasks })
         if (deviceTasks) {
           const commandPacket = buildCommandPacket(imei, "getinfo");
-          console.log({commandPacket})
+          console.log({command: commandPacket})
           socket.write(commandPacket)
         }
     });
