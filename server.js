@@ -460,12 +460,11 @@ function buildCommandPacket(imei, command) {
   const preambulo = '00000000';               // Preambulo fijo de 4 bytes (00 00 00 00)
   const codecId = '0C';                       // Codec 12
   const commandQuantity = '01';               // Enviando un solo comando
-  const imeiHex = stringToHex(imei);          // IMEI en formato ASCII convertido a hexadecimal
   const commandHex = stringToHex(command);    // Comando en formato ASCII convertido a hexadecimal
   const commandLength = (command.length).toString(16).padStart(4, '0'); // Longitud del comando (en bytes, 2 bytes en hexadecimal)
 
   // Arma el paquete sin el CRC16
-  const dataWithoutCrc = preambulo + codecId + commandQuantity + imeiHex + commandLength + commandHex;
+  const dataWithoutCrc = preambulo + codecId + commandQuantity + commandLength + commandHex;
 
   // Calcula el CRC16 para todo el paquete (sin el preámbulo)
   const crc = crc16.crc16(Buffer.from(dataWithoutCrc, 'hex')).toString(16).padStart(4, '0');
