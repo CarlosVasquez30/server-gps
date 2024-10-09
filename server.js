@@ -44,8 +44,9 @@
           const commandPacket = buildCommandPacket(imei, "getinfo");
           console.log({command: commandPacket})
           socket.write(commandPacket)
+          console.log(`Sent command packet ${commandPacket}`);
+
         }
-        console.log(`Sent command packet ${commandPacket}`);
 
       }
       else {
