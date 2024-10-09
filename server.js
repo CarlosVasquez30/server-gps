@@ -41,7 +41,7 @@
          const deviceTasks = deviceMap.get(imei);
         console.log({ deviceTasks })
         if (deviceTasks) {
-          const commandPacket = buildCommandPacket(imei, "getinfo");
+          const commandPacket = "000000000000000F0C010500000007676574696E666F0100004312"//buildCommandPacket(imei, "getinfo");
           console.log({command: commandPacket})
           socket.write(commandPacket)
           console.log(`Sent command packet ${commandPacket}`);
