@@ -35,13 +35,7 @@
         socket.write(confirmationPacket);
           
         console.log("imei------", imei);
-        const deviceTasks = deviceMap.get(imei);
-        console.log({ deviceTasks })
-        if (deviceTasks) {
-          const commandPacket = buildCommandPacket(imei, "getinfo");
-          console.log({commandPacket})
-          socket.write(commandPacket)
-        }
+        
         console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
       }
       else {
@@ -206,6 +200,14 @@
         }
       }
     });
+
+    const deviceTasks = deviceMap.get(imei);
+        console.log({ deviceTasks })
+        if (deviceTasks) {
+          const commandPacket = buildCommandPacket(imei, "getinfo");
+          console.log({commandPacket})
+          socket.write(commandPacket)
+        }
     });
     server.listen(80, () => {
       console.log("Teltonika server listening on port 80");
@@ -231,6 +233,7 @@ function transformPacket(packet) {
   const transformedPacket = {
     preamble, dataSize, codecID, commandQuantity1, type, commandSize, command, commandQuantity2, crc16
   }
+  
 
   return transformedPacket;
 }
