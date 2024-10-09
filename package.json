@@ -13,6 +13,7 @@
     "axios": "^1.6.8",
     "binutils64": "^0.1.2",
     "complete-teltonika-parser": "^0.3.6",
+    "crc": "^4.3.2",
     "teltonika-decoder": "^0.1.1",
     "teltonika-parser-ex": "^0.0.16"
   }

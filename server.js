@@ -5,155 +5,168 @@
     const { ProtocolParser, parseIMEI, Data, GPRS, BufferReader } = require('complete-teltonika-parser')
     const https = require("https");
     const deviceMap = new Map();
+    // Para generar el CRC16 (puedes usar una librería como 'crc')
 
   
     
     // Create a Teltonika TCP server that listens on port 5500
-    const server = net.createServer((socket) => {
-      console.log("New Teltonika device connected");
+  const server = net.createServer((socket) => {
+    console.log("New Teltonika device connected");
   
-      // When a new connection is established, listen for data events
-      var imei;
-      socket.on("data", (response) => {
-          const buf = Buffer.from(response);
-          console.log({response: response.toString(), buf})
-        // Extract the source and destination IP addresses from the buffer
-        const srcIp = `${buf[12]}.${buf[13]}.${buf[14]}.${buf[15]}`;
-        console.log("device ip:", srcIp);
+    // When a new connection is established, listen for data events
+    var imei;
+    socket.on("data", (response) => {
+      const buf = Buffer.from(response);
+      console.log({ response: response.toString(), buf })
+      // Extract the source and destination IP addresses from the buffer
+      const srcIp = `${buf[12]}.${buf[13]}.${buf[14]}.${buf[15]}`;
+      console.log("device ip:", srcIp);
   
-          const packet = response.toString("hex");
+      const packet = response.toString("hex");
           
-        console.log({ packet, length: packet.length })
+      console.log({ packet, length: packet.length })
         
   
-        if (packet.length === 34) {
-          imei = parseIMEI(packet)
-          const acceptData = true; 
-          const confirmationPacket = Buffer.alloc(1);
-          confirmationPacket.writeUInt8(acceptData ? 0x01 : 0x00);
-          socket.write(confirmationPacket);
+      if (packet.length === 34) {
+        imei = parseIMEI(packet)
+        const acceptData = true;
+        const confirmationPacket = Buffer.alloc(1);
+        confirmationPacket.writeUInt8(acceptData ? 0x01 : 0x00);
+        socket.write(confirmationPacket);
           
-          console.log("imei------", imei);
-          deviceMap.set(imei, socket);
-          console.log({deviceMap})
-          console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
+        console.log("imei------", imei);
+        const deviceTasks = deviceMap.get(imei);
+        console.log({ deviceTasks })
+        if (deviceTasks) {
+          const commandPacket = buildCommandPacket(imei, "getinfo");
+          console.log({commandPacket})
+          socket.write(commandPacket)
         }
-        else {
+        console.log(`Sent confirmation packet ${acceptData ? "01" : "00"}`);
+      }
+      else {
+        if (response.toString().includes("CTCR")) {
+          const [command, imei, activar] = response.toString().split('|');
+          console.log({ command, imei, activar })
+          if (command === 'CTCR' && imei && activar) {
+            deviceMap.set(imei, { CTCR: activar === 'true' });
+            console.log(`Device IMEI ${imei} stored with activar=${activar}`);
+          }
+        } else {
           let parsed;
           try {
             parsed = new ProtocolParser(packet);
           } catch (error) {
-            console.error({error})
+            console.error({ error })
           }
-          if (!parsed) {
-            return;
-          }
-          const dataLength = parsed.Content.AVL_Datas.length;
-          console.log("CodecType:", parsed.CodecType);
+          console.log({ par: parsed })
+          if (parsed) {
+            const dataLength = parsed.Content.AVL_Datas.length;
+            console.log("CodecType:", parsed.CodecType);
   
-          console.log({content: parsed.Content})
-          if (parsed.CodecType == "data sending") {
+            console.log({ content: parsed.Content })
+            if (parsed.CodecType == "data sending") {
               let avlDatas = parsed.Content
-              avlDatas.AVL_Datas.map((ad) => console.log({ad}))
-            try {
-              const index = avlDatas.AVL_Datas.length === 1 ? 0 : avlDatas.AVL_Datas.length - 1;
-              const avlData = avlDatas.AVL_Datas[index];
-              const gpsElement = avlData?.GPSelement;
-              const timestamp = avlData?.Timestamp;
+              avlDatas.AVL_Datas.map((ad) => console.log({ ad }))
+              try {
+                const index = avlDatas.AVL_Datas.length === 1 ? 0 : avlDatas.AVL_Datas.length - 1;
+                const avlData = avlDatas.AVL_Datas[index];
+                const gpsElement = avlData?.GPSelement;
+                const timestamp = avlData?.Timestamp;
     
-              const longitude = gpsElement?.Longitude;
-              const latitude = gpsElement?.Latitude;
-              const speed = gpsElement?.Speed;
+                const longitude = gpsElement?.Longitude;
+                const latitude = gpsElement?.Latitude;
+                const speed = gpsElement?.Speed;
     
     
-              const ioElement = avlData?.IOelement;
+                const ioElement = avlData?.IOelement;
     
-              //movement detection
-              let movement = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['240']) {
-                movement = ioElement.Elements['240'];
-              }
+                //movement detection
+                let movement = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['240']) {
+                  movement = ioElement.Elements['240'];
+                }
     
-              let signalStatus = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['21']) {
-                signalStatus = ioElement.Elements['21'];
-              }
+                let signalStatus = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['21']) {
+                  signalStatus = ioElement.Elements['21'];
+                }
     
-              let battery = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['66']) {
-                battery = ioElement.Elements['66'] * 100 / 13090;
-              }
+                let battery = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['66']) {
+                  battery = ioElement.Elements['66'] * 100 / 13090;
+                }
     
-              let fuel = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['9']) {
-                fuel = ioElement.Elements['9'] * 0.001;
-              }
+                let fuel = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['9']) {
+                  fuel = ioElement.Elements['9'] * 0.001;
+                }
     
-              let iccid = '';
-              if (ioElement && ioElement.Elements && ioElement.Elements['11'] && ioElement.Elements['14']) {
-                let iccid1 = ioElement.Elements['11'];
-                let iccid2 = ioElement.Elements['14'];
-                iccid = iccid1.toString() + iccid2.toString();
-              }
+                let iccid = '';
+                if (ioElement && ioElement.Elements && ioElement.Elements['11'] && ioElement.Elements['14']) {
+                  let iccid1 = ioElement.Elements['11'];
+                  let iccid2 = ioElement.Elements['14'];
+                  iccid = iccid1.toString() + iccid2.toString();
+                }
     
-              let ignition = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['239']) {
-                ignition = ioElement.Elements['239'];
-              }
+                let ignition = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['239']) {
+                  ignition = ioElement.Elements['239'];
+                }
 
-              let secs = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
-                secs = ioElement.Elements['449'];
-              }
+                let secs = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
+                  secs = ioElement.Elements['449'];
+                }
 
-              let powerTakeOff = 0;
-              if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
-                powerTakeOff = ioElement.Elements['1'];
-              }
+                let powerTakeOff = 0;
+                if (ioElement && ioElement.Elements && ioElement.Elements['449']) {
+                  powerTakeOff = ioElement.Elements['1'];
+                }
     
-              const deviceInfo = {
-                longitude, latitude, speed,
-                timestamp, movement, battery, fuel, signalStatus, iccid, ignition
-              };
+                const deviceInfo = {
+                  longitude, latitude, speed,
+                  timestamp, movement, battery, fuel, signalStatus, iccid, ignition
+                };
               
-              if (fuel) {
-                sendFuelData({ fuel, imei })
-              }
+                if (fuel) {
+                  sendFuelData({ fuel, imei })
+                }
 
-              if (powerTakeOff) {
-                const model = { status: powerTakeOff === 1, imei };
-                sendPowerTakeOffData(model)
-              }
+                if (powerTakeOff) {
+                  const model = { status: powerTakeOff === 1, imei };
+                  sendPowerTakeOffData(model)
+                }
 
-              if (secs) {
-                sendHourUpdateData({secs, imei})
-              }
-              console.log({ioElements: ioElement.Elements})
+                if (secs) {
+                  sendHourUpdateData({ secs, imei })
+                }
+                console.log({ ioElements: ioElement.Elements })
 
-              sendGPSData(
-                {
-                  imei, lat: isNaN(latitude) ? undefined : latitude,
-                  lng: isNaN(longitude) ? undefined : longitude,
-                  transferDate: new Date(timestamp),
-                  ignition
-                });
+                sendGPSData(
+                  {
+                    imei, lat: isNaN(latitude) ? undefined : latitude,
+                    lng: isNaN(longitude) ? undefined : longitude,
+                    transferDate: new Date(timestamp),
+                    ignition
+                  });
               
     
     
-              let address = '';
-              https.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyD9vdLrtEtIZ-U2i8tRqMVyrI0J_KbfeDk`, (response) => {
-                let data = '';
+                let address = '';
+                https.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyD9vdLrtEtIZ-U2i8tRqMVyrI0J_KbfeDk`, (response) => {
+                  let data = '';
     
-                response.on('data', (chunk) => {
-                  data += chunk;
-                });
+                  response.on('data', (chunk) => {
+                    data += chunk;
+                  });
     
-                response.on('end', () => {
-                  let res = JSON.parse(data);
-                  address = res.results[0]? res.results[0].formatted_address : '';
+                  response.on('end', () => {
+                    let res = JSON.parse(data);
+                    address = res.results[0] ? res.results[0].formatted_address : '';
     
-                  console.log('device info --------', deviceInfo);
-                  let record = {
+                    console.log('device info --------', deviceInfo);
+                    let record = {
                       deviceImei: imei,
                       lat: latitude,
                       lng: longitude,
@@ -165,33 +178,34 @@
                       signal: signalStatus,
                       address: address,
                       iccid: iccid,
-                      ignition : ignition,
+                      ignition: ignition,
                       ip: srcIp
-                  };
-                  console.log({record})
+                    };
+                    console.log({ record })
+                  });
+                }).on('error', (error) => {
+                  console.error(error);
                 });
-              }).on('error', (error) => {
-                console.error(error);
-              });
-            } catch (error) {
-              console.log(error)
-            }
+              } catch (error) {
+                console.log(error)
+              }
 
             
-            const dataReceivedPacket = Buffer.alloc(4);
-            dataReceivedPacket.writeUInt32BE(dataLength);
-            console.log({dataReceivedPacket})
+              const dataReceivedPacket = Buffer.alloc(4);
+              dataReceivedPacket.writeUInt32BE(dataLength);
+              console.log({ dataReceivedPacket })
             
-            socket.write(dataReceivedPacket);
-            console.log("dataLength --------", dataLength);
+              socket.write(dataReceivedPacket);
+              console.log("dataLength --------", dataLength);
             
-            
-          } else {
-            let gprs = parsed.Content
-            console.log("gprs-----",gprs);
+            }
+          
+
+                 
           }
         }
-      });
+      }
+    });
     });
     server.listen(80, () => {
       console.log("Teltonika server listening on port 80");
@@ -427,3 +441,30 @@ function extractDesiredPart(packetString) {
   }
 }
 
+function stringToHex(str) {
+  return Buffer.from(str, 'ascii').toString('hex');
+}
+
+const crc16 = require('crc');
+
+// Función para construir el paquete
+function buildCommandPacket(imei, command) {
+  const preambulo = '00000000';               // Preambulo fijo de 4 bytes (00 00 00 00)
+  const codecId = '0C';                       // Codec 12
+  const commandQuantity = '01';               // Enviando un solo comando
+  const imeiHex = stringToHex(imei);          // IMEI en formato ASCII convertido a hexadecimal
+  const commandHex = stringToHex(command);    // Comando en formato ASCII convertido a hexadecimal
+  const commandLength = (command.length).toString(16).padStart(4, '0'); // Longitud del comando (en bytes, 2 bytes en hexadecimal)
+
+  // Arma el paquete sin el CRC16
+  const dataWithoutCrc = preambulo + codecId + commandQuantity + imeiHex + commandLength + commandHex;
+
+  // Calcula el CRC16 para todo el paquete (sin el preámbulo)
+  const crc = crc16.crc16(Buffer.from(dataWithoutCrc, 'hex')).toString(16).padStart(4, '0');
+
+  // Añade el CRC al final del paquete
+  const fullPacket = dataWithoutCrc + crc;
+  
+  // Convierte el paquete a un buffer listo para enviarse
+  return Buffer.from(fullPacket, 'hex');
+}
