@@ -205,7 +205,7 @@
                   if (deviceTasks) {
                     const commandPacket = "000000000000000D0C010500000005676574696F01000000CB"//buildCommandPacket(imei, "getinfo");
                     console.log({command: commandPacket})
-                    socket.write(commandPacket, (err) => {
+                    socket.write(Buffer.from('000000000000000F0C010500000007676574696E666F0100004312', 'hex'), (err) => {
                       if (err) {
                         console.error('Error al enviar el comando:', err);
                       } else {
