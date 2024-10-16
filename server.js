@@ -200,7 +200,10 @@
                 if (err) {
                   console.error({err})
                 } else {
-                  const deviceTasks = deviceMap.get(imei);
+                  
+                }
+              });
+              const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
                     const commandPacket = "000000000000000D0C010500000005676574696F01000000CB"//buildCommandPacket(imei, "getinfo");
@@ -218,8 +221,6 @@
                     });         
 
                   }
-                }
-              });
               
               console.log("dataLength --------", dataLength);
             
