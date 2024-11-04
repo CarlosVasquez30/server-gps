@@ -203,7 +203,9 @@
                   const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
-                    const commandPacket = createCodec12Command(0x05, 'getio');//Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
+                    const commandPacket = createCodec12Command(0x05, 'getio');
+const crc16 = calculateCRC16(commandPacket.slice(0, -2)); // Calcula el CRC excluyendo el espacio del CRC final
+commandPacket.writeUInt16BE(crc16, commandPacket.length - 2);//Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
@@ -497,20 +499,26 @@ function buildCommandPacket(command) {
 }
 
 function calculateCRC16(buffer) {
-  let crc = 0x0000;
+  let crc = 0x0000; // Iniciar CRC en 0
+
   for (let byte of buffer) {
-      crc ^= byte << 8;
+      crc ^= byte; // CRC = CRC XOR Current Byte
+
+      // Iterar sobre cada bit
       for (let i = 0; i < 8; i++) {
-          if ((crc & 0x8000) !== 0) {
-              crc = (crc << 1) ^ 0x1021;
-          } else {
-              crc <<= 1;
+          let carry = crc & 1; // Carry = CRC AND 1
+          crc >>= 1; // CRC = CRC shifted right by 1 bit
+
+          // Si hay carry, aplicar XOR con 0xA001
+          if (carry) {
+              crc ^= 0xA001; // CRC = CRC XOR 0xA001
           }
-          crc &= 0xFFFF;
       }
   }
-  return crc;
+
+  return crc & 0xFFFF; // Asegurar que CRC es de 16 bits
 }
+
 
 
 function createCodec12Command(commandType, commandData) {
