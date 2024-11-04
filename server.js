@@ -553,12 +553,13 @@ function createCodec12Command(commandType, commandData) {
 
   // Calcular el CRC-16 del comando sin el CRC
 
-  const generated_cr16 = crc16( commandWithoutCRC ).toString(16);
+  const crc = crc16.crc16(Buffer.from(commandWithoutCRC, 'hex')).toString(16).padStart(4, '0');
+
 
 
 
   // Concatenar todo, incluyendo el CRC
-  return Buffer.concat([commandWithoutCRC, generated_cr16]);
+  return Buffer.concat([commandWithoutCRC, crc]);
 }
 
 
