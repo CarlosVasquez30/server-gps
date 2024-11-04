@@ -264,7 +264,6 @@ function transformPacket(packet) {
 }
 
 const https = require("https");
-const crc16 = require("crc16-teltonika").crc16teltonika;
 
 function sendPowerTakeOffData(model) {
   
