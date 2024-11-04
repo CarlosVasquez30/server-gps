@@ -205,7 +205,7 @@ const server = net.createServer((socket) => {
                 const deviceTasks = deviceMap.get(imei);
                 console.log({ deviceTasks })
                 if (deviceTasks) {
-                  const commandPacket = createCodec12Command(0x05,'getio');
+                  const commandPacket = buildCommandPacket('getio');
                   console.log({command: commandPacket})
                   socket.write(commandPacket, (err) => {
                     if (err) {
@@ -491,7 +491,7 @@ const dataWithoutCrc = preambulo + codecId + commandQuantity + commandLength + c
 
 // Calcula el CRC16 para todo el paquete (sin el preámbulo)
 const crcPad = crc.crc16(Buffer.from(dataWithoutCrc, 'hex')).toString(16).padStart(4, '0');
-
+console.log({crcPad})
 // Añade el CRC al final del paquete
 const fullPacket = dataWithoutCrc + crcPad;
 
