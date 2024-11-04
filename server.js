@@ -497,7 +497,8 @@ function buildCommandPacket(command) {
 }
 
 function createCodec12Command(commandType, commandData) {
-  const prefix = Buffer.alloc(8); // 8 bytes de prefijo con ceros
+  // Prefijo de 8 bytes (7 bytes de ceros + 1 byte para la longitud total)
+  const prefix = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F]);
   const codecId = Buffer.from([0x0C]); // Codec ID para codec12
   const commandQuantity = Buffer.from([0x01]); // Cantidad de comandos (1)
   const commandTypeBuffer = Buffer.from([commandType]); // Tipo de comando en hexadecimal
@@ -507,8 +508,8 @@ function createCodec12Command(commandType, commandData) {
   const commandLength = Buffer.alloc(4); // 4 bytes para la longitud del comando
   commandLength.writeUInt32BE(commandDataBuffer.length);
 
-  const responseCommand = Buffer.alloc(2); // 2 bytes para el código de respuesta (puedes ajustar si es necesario)
-  responseCommand.writeUInt16BE(0x4312); // Código de respuesta de ejemplo (puedes ajustarlo)
+  const endByte = Buffer.from([0x01]); // Byte de fin de comando (según tu ejemplo)
+  const responseCode = Buffer.from([0x00, 0x00, 0x43, 0x12]); // Código de respuesta
 
   // Concatenar todos los buffers para formar el comando codec12 completo
   return Buffer.concat([
@@ -518,6 +519,8 @@ function createCodec12Command(commandType, commandData) {
       commandTypeBuffer,
       commandLength,
       commandDataBuffer,
-      responseCommand
+      endByte,
+      responseCode
   ]);
 }
+
