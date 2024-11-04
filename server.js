@@ -203,7 +203,7 @@
                   const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
-                    const commandPacket = Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
+                    const commandPacket = buildCommandPacket("getinfo") //Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
@@ -476,7 +476,7 @@ function stringToHex(str) {
 const crc16 = require('crc');
 
 // Función para construir el paquete
-function buildCommandPacket(imei, command) {
+function buildCommandPacket(command) {
   const preambulo = '00000000';               // Preambulo fijo de 4 bytes (00 00 00 00)
   const codecId = '0C';                       // Codec 12
   const commandQuantity = '01';               // Enviando un solo comando
