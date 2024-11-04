@@ -514,14 +514,14 @@ function calculateCRC16(buffer) {
 
 
 function createCodec12Command(commandType, commandData) {
-  // Convierte el comando en datos de buffer
-  const dataBuffer = Buffer.from(commandData, 'utf-8'); // Convierte el comando a Buffer
-  const commandLength = dataBuffer.length; // Longitud del comando en bytes
+  // Convierte el comando en un buffer
+  const dataBuffer = Buffer.from(commandData, 'utf-8'); // Datos de comando en Buffer
+  const commandLength = dataBuffer.length; // Longitud de los datos del comando
 
-  // Longitud total del mensaje (8 bytes de prefijo + 6 bytes de header + longitud del comando + 3 bytes de finalización)
-  const totalLength = 8 + 6 + commandLength + 2; // +2 bytes para el CRC
+  // Longitud total del mensaje (sin incluir el CRC-16)
+  const totalLength = 8 + 6 + commandLength + 1;
   const prefix = Buffer.alloc(8); // 8 bytes de prefijo
-  prefix.writeUInt8(totalLength, 7); // Establece la longitud total en el último byte del prefijo
+  prefix.writeUInt32BE(totalLength, 4); // Escribimos la longitud total del mensaje en el prefijo
 
   const codecId = Buffer.from([0x0C]); // Codec ID para codec12
   const commandQuantity = Buffer.from([0x01]); // Cantidad de comandos (1)
@@ -533,9 +533,7 @@ function createCodec12Command(commandType, commandData) {
 
   const endByte = Buffer.from([0x01]); // Byte de fin de comando
 
-  
-
-  // Concatenar todos los buffers para calcular el CRC-16
+  // Concatenar todos los buffers antes de calcular el CRC-16
   const commandWithoutCRC = Buffer.concat([
       prefix,
       codecId,
