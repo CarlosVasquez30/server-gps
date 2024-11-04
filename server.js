@@ -6,7 +6,6 @@
   const https = require("https");
   const deviceMap = new Map();
 
-  const crc = require('crc');
 
   // Para generar el CRC16 (puedes usar una librería como 'crc')
 
@@ -477,7 +476,7 @@ function stringToHex(str) {
 return Buffer.from(str, 'ascii').toString('hex');
 }
 
-const crc16 = require('crc');
+const crc = require('crc');
 
 // Función para construir el paquete
 function buildCommandPacket(command) {
@@ -491,10 +490,10 @@ const commandLength = (command.length).toString(16).padStart(4, '0'); // Longitu
 const dataWithoutCrc = preambulo + codecId + commandQuantity + commandLength + commandHex;
 
 // Calcula el CRC16 para todo el paquete (sin el preámbulo)
-const crc = crc16.crc16(Buffer.from(dataWithoutCrc, 'hex')).toString(16).padStart(4, '0');
+const crcPad = crc.crc16(Buffer.from(dataWithoutCrc, 'hex')).toString(16).padStart(4, '0');
 
 // Añade el CRC al final del paquete
-const fullPacket = dataWithoutCrc + crc;
+const fullPacket = dataWithoutCrc + crcPad;
 
 // Convierte el paquete a un buffer listo para enviarse
 return Buffer.from(fullPacket, 'hex');
