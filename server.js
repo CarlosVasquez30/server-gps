@@ -203,7 +203,7 @@
                   const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
-                    const commandPacket = Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
+                    const commandPacket = createCodec12Command(0x05, 'getinfo');//Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
@@ -494,4 +494,30 @@ function buildCommandPacket(command) {
   
   // Convierte el paquete a un buffer listo para enviarse
   return Buffer.from(fullPacket, 'hex');
+}
+
+function createCodec12Command(commandType, commandData) {
+  const prefix = Buffer.alloc(8); // 8 bytes de prefijo con ceros
+  const codecId = Buffer.from([0x0C]); // Codec ID para codec12
+  const commandQuantity = Buffer.from([0x01]); // Cantidad de comandos (1)
+  const commandTypeBuffer = Buffer.from([commandType]); // Tipo de comando en hexadecimal
+
+  // Convierte el comando en hexadecimal
+  const commandDataBuffer = Buffer.from(commandData, 'utf-8'); // Datos del comando en UTF-8
+  const commandLength = Buffer.alloc(4); // 4 bytes para la longitud del comando
+  commandLength.writeUInt32BE(commandDataBuffer.length);
+
+  const responseCommand = Buffer.alloc(2); // 2 bytes para el código de respuesta (puedes ajustar si es necesario)
+  responseCommand.writeUInt16BE(0x4312); // Código de respuesta de ejemplo (puedes ajustarlo)
+
+  // Concatenar todos los buffers para formar el comando codec12 completo
+  return Buffer.concat([
+      prefix,
+      codecId,
+      commandQuantity,
+      commandTypeBuffer,
+      commandLength,
+      commandDataBuffer,
+      responseCommand
+  ]);
 }
