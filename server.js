@@ -205,7 +205,7 @@ const server = net.createServer((socket) => {
                 const deviceTasks = deviceMap.get(imei);
                 console.log({ deviceTasks })
                 if (deviceTasks) {
-                  const commandPacket = createCodec12Command('getio');
+                  const commandPacket = createCodec12Command('setdigout 1 180');
                   console.log({command: commandPacket})
                   socket.write(commandPacket, (err) => {
                     if (err) {
