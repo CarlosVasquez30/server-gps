@@ -203,7 +203,7 @@
                   const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
-                    const commandPacket = buildCommandPacket("getinfo") //Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
+                    const commandPacket = Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
