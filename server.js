@@ -264,6 +264,7 @@ function transformPacket(packet) {
 }
 
 const https = require("https");
+const crc16 = require("crc16-teltonika").crc16teltonika;
 
 function sendPowerTakeOffData(model) {
   
@@ -551,12 +552,13 @@ function createCodec12Command(commandType, commandData) {
   ]);
 
   // Calcular el CRC-16 del comando sin el CRC
-  const crc16 = calculateCRC16(commandWithoutCRC);
-  const crcBuffer = Buffer.alloc(2);
-  crcBuffer.writeUInt16BE(crc16);
+
+  const generated_cr16 = crc16( commandWithoutCRC ).toString(16);
+
+
 
   // Concatenar todo, incluyendo el CRC
-  return Buffer.concat([commandWithoutCRC, crcBuffer]);
+  return Buffer.concat([commandWithoutCRC, generated_cr16]);
 }
 
 
