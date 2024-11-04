@@ -205,7 +205,7 @@ const server = net.createServer((socket) => {
                 const deviceTasks = deviceMap.get(imei);
                 console.log({ deviceTasks })
                 if (deviceTasks) {
-                  const commandPacket = buildCommandPacket('getio');
+                  const commandPacket = createCodec12Command('getio');
                   console.log({command: commandPacket})
                   socket.write(commandPacket, (err) => {
                     if (err) {
@@ -521,48 +521,72 @@ return crc & 0xFFFF; // Asegurar que CRC es de 16 bits
 }
 
 
-
-function createCodec12Command(commandType, commandData) {
-// Convierte el comando en un buffer
-const dataBuffer = Buffer.from(commandData, 'utf-8'); // Datos de comando en Buffer
-const commandLength = dataBuffer.length; // Longitud de los datos del comando
-
-// Longitud total del mensaje (sin incluir el CRC-16)
-const totalLength = 8 + 6 + commandLength + 1;
-const prefix = Buffer.alloc(8); // 8 bytes de prefijo
-prefix.writeUInt32BE(totalLength, 4); // Escribimos la longitud total del mensaje en el prefijo
-
-const codecId = Buffer.from([0x0C]); // Codec ID para codec12
-const commandQuantity = Buffer.from([0x01]); // Cantidad de comandos (1)
-const commandTypeBuffer = Buffer.from([commandType]); // Tipo de comando en hexadecimal
-
-// Longitud del comando en 4 bytes
-const commandLengthBuffer = Buffer.alloc(4);
-commandLengthBuffer.writeUInt32BE(commandLength);
-
-const endByte = Buffer.from([0x01]); // Byte de fin de comando
-
-// Concatenar todos los buffers antes de calcular el CRC-16
-const commandWithoutCRC = Buffer.concat([
-    prefix,
-    codecId,
-    commandQuantity,
-    commandTypeBuffer,
-    commandLengthBuffer,
-    dataBuffer,
-    endByte
-]);
-
-// Calcular el CRC-16 del comando sin el CRC
-
-const generated_cr16 = crc.crc16( commandWithoutCRC ).toString(16).padStart(4,"0");
-console.log({generated_cr16})
-
-
-
-// Concatenar todo, incluyendo el CRC
-return Buffer.concat([commandWithoutCRC, generated_cr16]);
+function calculateCRC16(buffer) {
+  let crc = 0x0000;
+  for (let byte of buffer) {
+      crc ^= byte;
+      for (let i = 0; i < 8; i++) {
+          let carry = crc & 1;
+          crc >>= 1;
+          if (carry) {
+              crc ^= 0xA001;
+          }
+      }
+  }
+  return crc & 0xFFFF;
 }
 
+function createCodec12Command(command) {
+  // Preamble (4 bytes de ceros)
+  const preamble = Buffer.alloc(4, 0x00);
+
+  // Codec ID (1 byte)
+  const codecId = Buffer.from([0x0C]);
+
+  // Command Quantity 1 (1 byte)
+  const commandQuantity1 = Buffer.from([0x01]);
+
+  // Command Type (1 byte): 0x05 para comando, 0x06 para respuesta
+  const commandType = Buffer.from([0x05]);
+
+  // Command Size (4 bytes)
+  const commandData = Buffer.from(command, 'ascii'); // Comando en ASCII, conviértelo a hex si es necesario
+  const commandSize = Buffer.alloc(4);
+  commandSize.writeUInt32BE(commandData.length, 0);
+
+  // Command Quantity 2 (1 byte)
+  const commandQuantity2 = Buffer.from([0x01]);
+
+  // Concatenar los campos desde Codec ID hasta Command Quantity 2 para calcular Data Size
+  const dataWithoutDataSize = Buffer.concat([
+      codecId,
+      commandQuantity1,
+      commandType,
+      commandSize,
+      commandData,
+      commandQuantity2
+  ]);
+
+  // Data Size (4 bytes)
+  const dataSize = Buffer.alloc(4);
+  dataSize.writeUInt32BE(dataWithoutDataSize.length, 0);
+
+  // Concatenar todas las partes desde Preamble hasta Command Quantity 2
+  const message = Buffer.concat([
+      preamble,
+      dataSize,
+      dataWithoutDataSize
+  ]);
+
+  // Calcular CRC-16 desde Codec ID hasta Command Quantity 2
+  const crc = calculateCRC16(dataWithoutDataSize);
+  const crcBuffer = Buffer.alloc(4); // Crear buffer de 4 bytes para el CRC
+  crcBuffer.writeUInt16BE(crc, 2); // Escribir el CRC en los últimos 2 bytes (los primeros 2 bytes quedan en 0 para hacer 4 bytes en total)
+
+  // Construir el mensaje final con CRC
+  const fullMessage = Buffer.concat([message, crcBuffer]);
+
+  return fullMessage;
+}
 
 
