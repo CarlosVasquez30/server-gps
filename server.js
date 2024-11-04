@@ -203,7 +203,7 @@
                   const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
-                    const commandPacket = Buffer.from("000000000000000D0C010500000005676574696F01000000CB", "hex");
+                    const commandPacket = createCodec12Command(0x05, 'getio');//Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
@@ -496,31 +496,64 @@ function buildCommandPacket(command) {
   return Buffer.from(fullPacket, 'hex');
 }
 
+function calculateCRC16(buffer) {
+  let crc = 0x0000;
+  for (let byte of buffer) {
+      crc ^= byte << 8;
+      for (let i = 0; i < 8; i++) {
+          if ((crc & 0x8000) !== 0) {
+              crc = (crc << 1) ^ 0x1021;
+          } else {
+              crc <<= 1;
+          }
+          crc &= 0xFFFF;
+      }
+  }
+  return crc;
+}
+
+
 function createCodec12Command(commandType, commandData) {
-  // Prefijo de 8 bytes (7 bytes de ceros + 1 byte para la longitud total)
-  const prefix = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0F]);
+  // Convierte el comando en datos de buffer
+  const dataBuffer = Buffer.from(commandData, 'utf-8'); // Convierte el comando a Buffer
+  const commandLength = dataBuffer.length; // Longitud del comando en bytes
+
+  // Longitud total del mensaje (8 bytes de prefijo + 6 bytes de header + longitud del comando + 3 bytes de finalización)
+  const totalLength = 8 + 6 + commandLength + 2; // +2 bytes para el CRC
+  const prefix = Buffer.alloc(8); // 8 bytes de prefijo
+  prefix.writeUInt8(totalLength, 7); // Establece la longitud total en el último byte del prefijo
+
   const codecId = Buffer.from([0x0C]); // Codec ID para codec12
   const commandQuantity = Buffer.from([0x01]); // Cantidad de comandos (1)
   const commandTypeBuffer = Buffer.from([commandType]); // Tipo de comando en hexadecimal
 
-  // Convierte el comando en hexadecimal
-  const commandDataBuffer = Buffer.from(commandData, 'utf-8'); // Datos del comando en UTF-8
-  const commandLength = Buffer.alloc(4); // 4 bytes para la longitud del comando
-  commandLength.writeUInt32BE(commandDataBuffer.length);
+  // Longitud del comando en 4 bytes
+  const commandLengthBuffer = Buffer.alloc(4);
+  commandLengthBuffer.writeUInt32BE(commandLength);
 
-  const endByte = Buffer.from([0x01]); // Byte de fin de comando (según tu ejemplo)
-  const responseCode = Buffer.from([0x00, 0x00, 0x43, 0x12]); // Código de respuesta
+  const endByte = Buffer.from([0x01]); // Byte de fin de comando
 
-  // Concatenar todos los buffers para formar el comando codec12 completo
-  return Buffer.concat([
+  
+
+  // Concatenar todos los buffers para calcular el CRC-16
+  const commandWithoutCRC = Buffer.concat([
       prefix,
       codecId,
       commandQuantity,
       commandTypeBuffer,
-      commandLength,
-      commandDataBuffer,
-      endByte,
-      responseCode
+      commandLengthBuffer,
+      dataBuffer,
+      endByte
   ]);
+
+  // Calcular el CRC-16 del comando sin el CRC
+  const crc16 = calculateCRC16(commandWithoutCRC);
+  const crcBuffer = Buffer.alloc(2);
+  crcBuffer.writeUInt16BE(crc16);
+
+  // Concatenar todo, incluyendo el CRC
+  return Buffer.concat([commandWithoutCRC, crcBuffer]);
 }
+
+
 
