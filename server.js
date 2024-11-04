@@ -204,8 +204,6 @@
                   console.log({ deviceTasks })
                   if (deviceTasks) {
                     const commandPacket = createCodec12Command(0x05, 'getio');
-const crc16 = calculateCRC16(commandPacket.slice(0, -2)); // Calcula el CRC excluyendo el espacio del CRC final
-commandPacket.writeUInt16BE(crc16, commandPacket.length - 2);//Buffer.from("000000000000000f0C010500000007676574696e666f0100004312", "hex");
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
