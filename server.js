@@ -203,7 +203,7 @@
                   const deviceTasks = deviceMap.get(imei);
                   console.log({ deviceTasks })
                   if (deviceTasks) {
-                    const commandPacket = createCodec12Command(0x05, 'getio');
+                    const commandPacket = buildCommandPacket('getio');
                     console.log({command: commandPacket})
                     socket.write(commandPacket, (err) => {
                       if (err) {
