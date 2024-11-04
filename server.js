@@ -556,8 +556,8 @@ const commandWithoutCRC = Buffer.concat([
 
 // Calcular el CRC-16 del comando sin el CRC
 
-const generated_cr16 = crc.crc16( Buffer.from("0C010500000005676574696F01", "hex") ).toString(16).padStart(4,"0");
-
+const generated_cr16 = crc.crc16( commandWithoutCRC ).toString(16).padStart(4,"0");
+console.log({generated_cr16})
 
 
 
