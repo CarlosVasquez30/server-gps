@@ -288,7 +288,7 @@
   
   }
 
-const hostname = 'astctr.agrochofa.cl';
+const hostname = 'assets.agrochofa.cl';
   
   function sendFuelData(model) {
   
