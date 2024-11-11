@@ -60,7 +60,7 @@ const server = net.createServer((socket) => {
             console.log(`Device IMEI ${imei} stored with activar=${activar}`);
           } else {
             console.log("HAY IMEI SOCKET")
-            const status = activar === true ? 1 : 0;
+            const status = activar === 'true' ? 1 : 0;
             const commandPacket = createCodec12Command(`setdigout ${status}`);
             console.log({command: commandPacket})
             imeiSocket.write(commandPacket, (err) => {
