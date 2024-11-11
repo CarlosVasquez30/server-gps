@@ -9,14 +9,15 @@
 
   // Para generar el CRC16 (puedes usar una librería como 'crc')
 
-
+  const connected = new Map();
   
   // Create a Teltonika TCP server that listens on port 5500
 const server = net.createServer((socket) => {
   console.log("New Teltonika device connected");
-
+  console.log({connected})
   // When a new connection is established, listen for data events
   var imei;
+
   socket.on("data", (response) => {
     const buf = Buffer.from(response);
     console.log({ response: response.toString(), buf })
@@ -44,7 +45,8 @@ const server = net.createServer((socket) => {
       });
         
       console.log("imei------", imei);
-       
+      connected.set(imei, socket);
+
 
     }
     else {
@@ -52,8 +54,24 @@ const server = net.createServer((socket) => {
         const [command, imei, activar] = response.toString().split('|');
         console.log({ command, imei, activar })
         if (command === 'CTCR' && imei && activar) {
-          deviceMap.set(imei, { CTCR: activar === 'true' });
-          console.log(`Device IMEI ${imei} stored with activar=${activar}`);
+          const imeiSocket = connected.get(imei);
+          if (!imeiSocket) {
+            deviceMap.set(imei, { CTCR: activar === 'true' });
+            console.log(`Device IMEI ${imei} stored with activar=${activar}`);
+          } else {
+            console.log("HAY IMEI SOCKET")
+            const commandPacket = createCodec12Command(`setdigout ${status}`);
+            console.log({command: commandPacket})
+            imeiSocket.write(commandPacket, (err) => {
+              if (err) {
+                console.error('Error al enviar el comando:', err);
+              } else {
+                console.log(`Sent command packet: ${commandPacket}`);
+                
+              }
+            });        
+          }
+          
         }
       } else {
         let parsed;
@@ -234,6 +252,13 @@ const server = net.createServer((socket) => {
       }
     }
   });
+
+  socket.on("close", () => {
+    if (imei) {
+      connected.delete(imei)
+
+    }
+  })
 
 });
 
