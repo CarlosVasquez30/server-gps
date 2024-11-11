@@ -224,9 +224,9 @@
   
   });
   
-    server.listen(80, () => {
+    server.listen(81, () => {
   
-      console.log("Teltonika server listening on port 80");
+      console.log("Teltonika server listening on port 81");
     });
   })()
   
