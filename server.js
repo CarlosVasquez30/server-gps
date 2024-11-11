@@ -254,10 +254,7 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("close", () => {
-    if (imei) {
-      connected.delete(imei)
 
-    }
   })
 
 });
