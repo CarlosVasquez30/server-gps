@@ -87,7 +87,7 @@ const server = net.createServer((socket) => {
         }
         console.log({ par: parsed })
         if (parsed) {
-          const dataLength = parsed.Content.AVL_Datas.length;
+          const dataLength = parsed?.Content.AVL_Datas?.length;
           console.log("CodecType:", parsed.CodecType);
 
           console.log({ content: parsed.Content })
