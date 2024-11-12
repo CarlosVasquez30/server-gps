@@ -54,21 +54,25 @@ const server = net.createServer((socket) => {
         const [command, imei, activar] = response.toString().split('|');
         console.log({ command, imei, activar })
         if (command === 'CTCR' && imei && activar) {
+          
           const imeiSocket = connected.get(imei);
           if (!imeiSocket) {
             deviceMap.set(imei, { CTCR: activar === 'true' });
             console.log(`Device IMEI ${imei} stored with activar=${activar}`);
           } else {
-            console.log("HAY IMEI SOCKET")
+            //console.log("HAY IMEI SOCKET")
             const status = activar === 'true' ? 1 : 0;
-            const commandPacket = createCodec12Command(`setdigout ${status}`);
-            console.log({command: commandPacket})
+            const strCommand = `setdigout ${status}`;
+            createCircuitBrokenLog({imei, command: strCommand, status: "waiting"});
+            const commandPacket = createCodec12Command(strCommand);
+            //console.log({ command: commandPacket })
             imeiSocket.write(commandPacket, (err) => {
               if (err) {
                 console.error('Error al enviar el comando:', err);
+                sendCircuitBrokenLog({imei, command: strCommand, sent: false});
               } else {
                 console.log(`Sent command packet: ${commandPacket}`);
-                
+                sendCircuitBrokenLog({imei, command: strCommand, sent: true});
               }
             });        
           }
@@ -462,7 +466,71 @@ const options = {
       'Content-Type': 'application/json',
   } 
 };
+  
+// Crea la petición HTTP
+const req = https.request(options, (res) => {
+  console.log(`Estado de la petición: ${res.statusCode}`);
 
+  res.on('data', (chunk) => {
+      console.log(`Datos recibidos del otro servidor: ${chunk}`);
+  });
+});
+
+req.on('error', (error) => {
+  console.error('Error al enviar la petición al otro servidor:', error);
+});
+
+// Envía los datos al otro servidor
+req.write(postData);
+req.end();
+}
+
+function createCircuitBrokenLog(model) {
+  // Datos para la petición HTTP
+  const postData = JSON.stringify(model);
+  const options = {
+    hostname: 'assets.agrochofa.cl',
+    port: 443,
+    path: '/api/sga/cortaCorriente/logs/crear',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    } 
+  };
+    
+  
+// Crea la petición HTTP
+const req = https.request(options, (res) => {
+    console.log(`Estado de la petición: ${res.statusCode}`);
+
+    res.on('data', (chunk) => {
+        console.log(`Datos recibidos del otro servidor: ${chunk}`);
+    });
+});
+
+req.on('error', (error) => {
+    console.error('Error al enviar la petición al otro servidor:', error);
+});
+
+// Envía los datos al otro servidor
+req.write(postData);
+req.end();
+}
+
+function sendCircuitBrokenLog(model) {
+  // Datos para la petición HTTP
+  const postData = JSON.stringify(model);
+  const options = {
+    hostname: 'assets.agrochofa.cl',
+    port: 443,
+    path: '/api/sga/cortaCorriente/logs/actualizar',
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    } 
+  };
+    
+  
 // Crea la petición HTTP
 const req = https.request(options, (res) => {
     console.log(`Estado de la petición: ${res.statusCode}`);
