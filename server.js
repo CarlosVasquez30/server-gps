@@ -21,7 +21,7 @@ const server = net.createServer((socket) => {
   socket.on("data", (response) => {
     const buf = Buffer.from(response);
     console.log({ response: response.toString(), buf })
-    if (response.includes("WiFi") || response.includes("|BD|")) {
+    if (response.includes("WiFi") || response.includes("|BD|") || response.includes("GET / HTTP")) {
       socket.destroy();
       return;
     }
