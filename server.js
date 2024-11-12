@@ -21,6 +21,9 @@ const server = net.createServer((socket) => {
   socket.on("data", (response) => {
     const buf = Buffer.from(response);
     console.log({ response: response.toString(), buf })
+    if (response.includes("WiFi") || response.includes("|BD|")) {
+      socket.destroy();
+    }
     // Extract the source and destination IP addresses from the buffer
     const srcIp = `${buf[12]}.${buf[13]}.${buf[14]}.${buf[15]}`;
     console.log("device ip:", srcIp);
