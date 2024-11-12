@@ -528,7 +528,7 @@ function sendCircuitBrokenLog(model) {
   // Datos para la petición HTTP
   const postData = JSON.stringify(model);
   const options = {
-    hostname: 'localhost:3000',
+    hostname: 'assets.agrochofa.cl',
     port: 443,
     path: '/api/sga/activos/cortaCorriente/logs/actualizar',
     method: 'POST',
