@@ -63,16 +63,16 @@ const server = net.createServer((socket) => {
             //console.log("HAY IMEI SOCKET")
             const status = activar === 'true' ? 1 : 0;
             const strCommand = `setdigout ${status}`;
-            createCircuitBrokenLog({imei, command: strCommand, status: "waiting"});
+            //createCircuitBrokenLog({imei, command: strCommand, status: "waiting"});
             const commandPacket = createCodec12Command(strCommand);
             //console.log({ command: commandPacket })
             imeiSocket.write(commandPacket, (err) => {
               if (err) {
                 console.error('Error al enviar el comando:', err);
-                sendCircuitBrokenLog({imei, command: strCommand, sent: false});
+                sendCircuitBrokenLog({imei, command: strCommand, status: "error"});
               } else {
                 console.log(`Sent command packet: ${commandPacket}`);
-                sendCircuitBrokenLog({imei, command: strCommand, sent: true});
+                sendCircuitBrokenLog({imei, command: strCommand, status: "success"});
               }
             });        
           }
