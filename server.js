@@ -234,8 +234,11 @@ const server = net.createServer((socket) => {
                   socket.write(commandPacket, (err) => {
                     if (err) {
                       console.error('Error al enviar el comando:', err);
+                      sendCircuitBrokenLog({imei, command: commandPacket, status: "error"});
                     } else {
                       console.log(`Sent command packet: ${commandPacket}`);
+                      sendCircuitBrokenLog({imei, command: commandPacket, status: "success"});
+
                       
                       deviceMap.delete(imei);
                       console.log(`IMEI ${imei} eliminado de deviceMap`);
